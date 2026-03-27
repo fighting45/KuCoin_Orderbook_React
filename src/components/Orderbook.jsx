@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 
 const Orderbook = ({ initialSymbol = 'BTC-USDT', depth = 8 }) => {
   const [symbol, setSymbol] = useState(initialSymbol);
-  const [symbolInput, setSymbolInput] = useState(initialSymbol);
   const [bids, setBids] = useState([]);
   const [asks, setAsks] = useState([]);
   const [lastPrice, setLastPrice] = useState(null);
@@ -524,25 +523,6 @@ const Orderbook = ({ initialSymbol = 'BTC-USDT', depth = 8 }) => {
     }
   };
 
-  const handleSymbolChange = () => {
-    const upperSymbol = symbolInput.toUpperCase().trim();
-    if (upperSymbol && upperSymbol !== symbol) {
-      // Reset state when changing symbol
-      setBids([]);
-      setAsks([]);
-      setLastPrice(null);
-      setPrecision(null);
-      setPrecisionOptions([]);
-      orderBookRef.current = { bids: {}, asks: {} };
-      setSymbol(upperSymbol);
-    }
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      handleSymbolChange();
-    }
-  };
 
   return (
     <div className="w-full max-w-md mx-auto bg-[#1a1e3e] rounded-lg shadow-2xl overflow-hidden">
@@ -557,58 +537,34 @@ const Orderbook = ({ initialSymbol = 'BTC-USDT', depth = 8 }) => {
         </div>
       </div>
 
-      {/* Symbol Input */}
-      <div className="px-4 py-3 bg-[#0f1331] border-b border-gray-700">
-        <div className="flex items-center gap-2">
-          <label className="text-xs text-gray-400 font-semibold whitespace-nowrap">Trading Pair:</label>
-          <input
-            type="text"
-            value={symbolInput}
-            onChange={(e) => setSymbolInput(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="BTC-USDT"
-            className="flex-1 px-3 py-1.5 text-sm bg-[#1a1e3e] text-white border border-gray-600 rounded focus:outline-none focus:border-purple-500"
-          />
-          <button
-            onClick={handleSymbolChange}
-            className="px-3 py-1.5 text-sm bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors font-medium"
-          >
-            Load
-          </button>
-        </div>
-      </div>
-
       {/* Precision Selector */}
       {precisionOptions.length > 0 && (
-        <div className="px-4 py-3 bg-[#0f1331] border-b border-gray-700">
-          <div className="flex items-center gap-3">
-            <label className="text-xs text-gray-400 font-semibold whitespace-nowrap">Precision:</label>
-            <select
-              value={precision}
-              onChange={(e) => setPrecision(parseFloat(e.target.value))}
-              className="flex-1 px-3 py-1.5 text-sm bg-[#1a1e3e] text-white border border-gray-600 rounded focus:outline-none focus:border-purple-500 cursor-pointer"
-            >
-              {precisionOptions.map((option) => {
-                // Format precision display
-                let displayValue;
-                if (option >= 1) {
-                  displayValue = option.toString();
-                } else if (option >= 0.01) {
-                  displayValue = option.toFixed(2);
-                } else if (option >= 0.001) {
-                  displayValue = option.toFixed(3);
-                } else {
-                  displayValue = option.toFixed(4);
-                }
+        <div className="px-4 py-2 bg-[#0f1331] border-b border-gray-700 flex justify-end">
+          <select
+            value={precision}
+            onChange={(e) => setPrecision(parseFloat(e.target.value))}
+            className="px-2 py-1 text-xs bg-[#1a1e3e] text-gray-300 border border-gray-600 rounded focus:outline-none focus:border-purple-500 cursor-pointer"
+          >
+            {precisionOptions.map((option) => {
+              // Format precision display
+              let displayValue;
+              if (option >= 1) {
+                displayValue = option.toString();
+              } else if (option >= 0.01) {
+                displayValue = option.toFixed(2);
+              } else if (option >= 0.001) {
+                displayValue = option.toFixed(3);
+              } else {
+                displayValue = option.toFixed(4);
+              }
 
-                return (
-                  <option key={option} value={option}>
-                    {displayValue}
-                  </option>
-                );
-              })}
-            </select>
-          </div>
+              return (
+                <option key={option} value={option}>
+                  {displayValue}
+                </option>
+              );
+            })}
+          </select>
         </div>
       )}
 
@@ -680,11 +636,6 @@ const Orderbook = ({ initialSymbol = 'BTC-USDT', depth = 8 }) => {
             </div>
           ))}
         </div>
-      </div>
-
-      {/* Footer */}
-      <div className="px-4 py-2 bg-[#0a0e27] border-t border-gray-700 text-center text-xs text-gray-500">
-        Real-time data from KuCoin
       </div>
     </div>
   );
